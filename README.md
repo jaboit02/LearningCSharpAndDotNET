@@ -1,10 +1,10 @@
-# Tech News Aggregator (Learning & Portfolio Project)
+# Tech News Aggregator (Learning Project)
 
-A learning project built to explore **C#**, **ASP.NET Core (.NET 10)**, **Entity Framework Core**, and workflow automation with **n8n**.
+A learning project built to explore **C#**, **.NET 10** and workflow automation with **n8n**.
 
 > **Note on Project Scope & AI Usage:**  
 > This repository is strictly a **local development and learning environment**—it is not intended for production deployment without further security hardening (e.g., HTTPS, authentication, rate limiting).  
-> Artificial Intelligence was actively used as an interactive tutor and programming assistant during development to improve understanding of core architectural concepts, best practices, and .NET conventions step by step.
+> Artificial Intelligence was actively used as an interactive tutor and programming assistant during development to improve understanding of architectural concepts, best practices, and .NET conventions step by step.
 
 ---
 
@@ -16,7 +16,7 @@ A learning project built to explore **C#**, **ASP.NET Core (.NET 10)**, **Entity
                      └──POST /webhook/sync-news── [.NET BackgroundService on Startup]
 ```
 
-1. **Automated Feed Collection (n8n):** A scheduled n8n workflow fetches official public RSS/Atom feeds (e.g., Heise Online), filters relevant tech articles, and sends structured JSON payloads to the .NET backend.
+1. **Automated Feed Collection (n8n):** A scheduled n8n workflow fetches official public RSS/Atom feeds (e.g., Heise Online RSS Feed: `https://www.heise.de/news-extern/news.html`), filters relevant tech articles, and sends structured JSON payloads to the .NET backend.
 2. **Backend API & Persistence (.NET 10 / EF Core):** An ASP.NET Core Minimal API endpoint receives incoming articles, checks for duplicates by URL, and persists them into a local **SQLite** database.
 3. **Startup Sync (`BackgroundService`):** On application startup, a hosted background service automatically triggers n8n's webhook to fetch the latest articles immediately.
 4. **Web Interface (Razor Pages):** A server-side rendered UI allows browsing, searching/filtering by keywords or source, and deleting stored articles.
@@ -43,8 +43,8 @@ A learning project built to explore **C#**, **ASP.NET Core (.NET 10)**, **Entity
 ## Getting Started (Local Development)
 
 ### Prerequisites
-- [.NET 10 SDK](https://microsoft.com)
-- [Docker](https://docker.com)
+- [.NET 10 SDK](https://learn.microsoft.com/en-gb/dotnet/core/install/)
+- [Docker](https://docs.docker.com/engine/install/)
 - EF Core CLI Tools: `dotnet tool install --global dotnet-ef --version 10.*`
 
 ### 1. Start n8n
