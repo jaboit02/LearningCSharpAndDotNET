@@ -1,16 +1,25 @@
 {
-  "name": "My workflow",
+  "name": "My workflow 3",
   "nodes": [
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
       "position": [
-        -416,
-        -112
+        -192,
+        80
       ],
-      "id": "1e5e0579-280f-4636-ad6a-6fa16f7ed984",
-      "name": "When clicking ‘Execute workflow’"
+      "id": "7bf3b433-1037-47d8-bbeb-44440a844a4c",
+      "name": "Schedule Trigger"
     },
     {
       "parameters": {
@@ -35,10 +44,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        -192,
-        -112
+        32,
+        80
       ],
-      "id": "0fbcdd8e-efd8-4d1d-87f4-aaa63eec26ed",
+      "id": "0c1bee44-4d67-4f5b-857b-7b985e0e7f4e",
       "name": "Edit Fields"
     },
     {
@@ -49,16 +58,16 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        32,
-        -112
+        256,
+        80
       ],
-      "id": "93273d5b-68c7-4adf-8969-02e67966927f",
+      "id": "5c7dea1a-47f0-4428-a30b-cd385f990ca9",
       "name": "RSS Read"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "http://host.docker.internal",
+        "url": "http://host.docker.internal:5223/api/articles",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -67,7 +76,7 @@
               "value": "={{ $json.title }}"
             },
             {
-              "name": "url ",
+              "name": "url",
               "value": "={{ $json.link }}"
             },
             {
@@ -87,6 +96,7 @@
         "options": {
           "response": {
             "response": {
+              "fullResponse": true,
               "neverError": true
             }
           }
@@ -95,26 +105,42 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        256,
+        480,
+        80
+      ],
+      "id": "d4406363-4309-4288-9005-bc9917e02d62",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        272
+      ],
+      "id": "a9ad2699-ac27-40fb-a1ae-3233ad674c75",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sync-news",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
         -112
       ],
-      "id": "b5e5410b-e5e4-4e20-94d1-18b6c424e932",
-      "name": "HTTP Request"
+      "id": "fc1b6e8d-90d5-4cf9-b96b-28f38e18c230",
+      "name": "Webhook",
+      "webhookId": "566b0586-c568-413f-a1e8-6f7666e74865"
     }
   ],
   "pinData": {},
   "connections": {
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Edit Fields": {
       "main": [
         [
@@ -136,18 +162,51 @@
           }
         ]
       ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "eb8c12c3-7013-45e8-b6d0-027e008e2d2c",
+  "versionId": "45b1cf08-2636-4645-9dfc-2e1f82995671",
   "meta": {
     "instanceId": "92fd1ca62d161903d063c6f9587e32f262460bf6346a4ea7e8c72a0d8455b912"
   },
   "nodeGroups": [],
-  "id": "xXyaDoAWaBHSZh01",
+  "id": "8X50UrZ189A8lDjd",
   "tags": []
 }

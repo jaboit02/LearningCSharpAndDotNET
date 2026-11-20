@@ -26,6 +26,9 @@ namespace NewsAggregator.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsBookmarked")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("PublishedAt")
                         .HasColumnType("TEXT");
 

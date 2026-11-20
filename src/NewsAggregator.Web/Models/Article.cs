@@ -21,4 +21,6 @@ public class Article
     public DateTime PublishedAt { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public bool IsBookmarked { get; set; } = false;
 }

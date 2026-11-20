@@ -15,13 +15,23 @@
 
     <!-- Filter Form (submits as HTTP GET query parameters: /?SearchTerm=...&SelectedSource=...) -->
     <form method="get" class="card card-body bg-light mb-4 shadow-sm">
-        <div class="row g-2 align-items-end">
-            <div class="col-md-6">
-                <label asp-for="SearchTerm" class="form-label fw-semibold">Search Keyword</label>
-                <input asp-for="SearchTerm" class="form-control" placeholder="Search in title or summary..." />
+        <div class="d-flex flex-wrap flex-lg-nowrap align-items-end gap-2">
+            
+            <!-- 1. Search Input + OR/AND Selector (grows to fill available space: flex-grow-1) -->
+            <div class="flex-grow-1" style="min-width: 240px;">
+                <label asp-for="SearchTerm" class="form-label fw-semibold small mb-1">Keywords (comma-separated)</label>
+                <div class="input-group">
+                    <input asp-for="SearchTerm" class="form-control" placeholder="e.g. Apple, KI, Linux..." />
+                    <select asp-for="FilterMode" class="form-select flex-grow-0" style="width: 100px;" title="Match ANY (OR) or ALL (AND)">
+                        <option value="OR">OR</option>
+                        <option value="AND">AND</option>
+                    </select>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label asp-for="SelectedSource" class="form-label fw-semibold">Source</label>
+
+            <!-- 2. Source Dropdown -->
+            <div style="min-width: 160px;">
+                <label asp-for="SelectedSource" class="form-label fw-semibold small mb-1">Source</label>
                 <select asp-for="SelectedSource" class="form-select">
                     <option value="">All Sources</option>
                     @foreach (var source in Model.AvailableSources)
@@ -30,13 +40,24 @@
                     }
                 </select>
             </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
-                @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.SelectedSource))
+
+            <!-- 3. Bookmarks Only Toggle (styled as a button-like box to match input height cleanly) -->
+            <div class="flex-shrink-0">
+                <div class="form-check border rounded bg-white px-3 py-2 m-0 d-flex align-items-center" style="height: 38px;">
+                    <input asp-for="OnlyBookmarked" class="form-check-input me-2 mt-0" type="checkbox" onchange="this.form.submit()" />
+                    <label asp-for="OnlyBookmarked" class="form-check-label fw-semibold mb-0 text-nowrap">★ Bookmarks</label>
+                </div>
+            </div>
+
+            <!-- 4. Filter & Reset Action Buttons -->
+            <div class="d-flex gap-2 flex-shrink-0">
+                <button type="submit" class="btn btn-primary px-3">Filter</button>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.SelectedSource) || Model.OnlyBookmarked)
                 {
                     <a asp-page="./Index" class="btn btn-outline-secondary">Reset</a>
                 }
             </div>
+
         </div>
     </form>
 
@@ -53,7 +74,8 @@
             @foreach (var article in Model.Articles)
             {
                 <div class="col-12">
-                    <div class="card shadow-sm">
+                    <!-- Yellow border highlight when an article is bookmarked -->
+                    <div class="card shadow-sm @(article.IsBookmarked ? "border-warning" : "")">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>
@@ -74,11 +96,29 @@
                                     }
                                 </div>
 
-                                <!-- Delete Form (triggers OnPostDeleteAsync in Index.cshtml.cs) -->
-                                <form method="post" asp-page-handler="Delete" asp-route-id="@article.Id"
-                                      onsubmit="return confirm('Delete this article?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
+                                <!-- Action Buttons Container (Bookmark + Delete side by side) -->
+                                <div class="d-flex gap-2 flex-shrink-0">
+                                    <!-- NEW: Bookmark Toggle Form (triggers OnPostToggleBookmarkAsync -> PATCH /api/articles/{id}/bookmark) -->
+                                    <form method="post" asp-page-handler="ToggleBookmark" asp-route-id="@article.Id">
+                                        <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                        <input type="hidden" name="SelectedSource" value="@Model.SelectedSource" />
+                                        <input type="hidden" name="OnlyBookmarked" value="@Model.OnlyBookmarked.ToString()" />
+
+                                        <button type="submit" class="btn btn-sm @(article.IsBookmarked ? "btn-warning" : "btn-outline-warning")">
+                                            @(article.IsBookmarked ? "★ Saved" : "☆ Bookmark")
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Form (triggers OnPostDeleteAsync -> DELETE /api/articles/{id}) -->
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@article.Id"
+                                          onsubmit="return confirm('Delete this article?');">
+                                        <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                        <input type="hidden" name="SelectedSource" value="@Model.SelectedSource" />
+                                        <input type="hidden" name="OnlyBookmarked" value="@Model.OnlyBookmarked.ToString()" />
+
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

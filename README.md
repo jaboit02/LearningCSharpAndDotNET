@@ -12,11 +12,14 @@ A learning project built to explore **C#**, **ASP.NET Core (.NET 10)**, **Entity
 
 ```text
 [RSS Feed] ──▶ [n8n Workflow (Docker)] ──POST /api/articles──▶ [.NET 10 Minimal API] ──▶ [SQLite (news.db)]
+                     ▲
+                     └──POST /webhook/sync-news── [.NET BackgroundService on Startup]
 ```
 
 1. **Automated Feed Collection (n8n):** A scheduled n8n workflow fetches official public RSS/Atom feeds (e.g., Heise Online), filters relevant tech articles, and sends structured JSON payloads to the .NET backend.
 2. **Backend API & Persistence (.NET 10 / EF Core):** An ASP.NET Core Minimal API endpoint receives incoming articles, checks for duplicates by URL, and persists them into a local **SQLite** database.
-3. **Web Interface (Razor Pages):** A server-side rendered UI allows browsing, searching/filtering by keywords or source, and deleting stored articles.
+3. **Startup Sync (`BackgroundService`):** On application startup, a hosted background service automatically triggers n8n's webhook to fetch the latest articles immediately.
+4. **Web Interface (Razor Pages):** A server-side rendered UI allows browsing, searching/filtering by keywords or source, and deleting stored articles.
 
 ## Tech Stack
 
@@ -29,10 +32,10 @@ A learning project built to explore **C#**, **ASP.NET Core (.NET 10)**, **Entity
 
 ```text
 ├── src/
-│   └── NewsAggregator.Web/    # ASP.NET Core web app, Minimal API & EF Core data layer
+│   └── NewsAggregator.Web/                         # ASP.NET Core web app, Minimal API & EF Core data layer
 ├── n8n/
-│   ├── docker-compose.yml     # Local Docker setup for n8n
-│   └── workflow.json          # Exportable n8n workflow definition
+│   ├── docker-compose.yml                          # Local Docker setup for n8n
+│   └── manual_triggered_scheduled_Workflow.json    # Exportable n8n workflow definition
 ├── .gitignore
 └── README.md
 ```
@@ -44,19 +47,19 @@ A learning project built to explore **C#**, **ASP.NET Core (.NET 10)**, **Entity
 - [Docker](https://docker.com)
 - EF Core CLI Tools: `dotnet tool install --global dotnet-ef --version 10.*`
 
-### 1. Database Setup & Web App
+### 1. Start n8n
+```bash
+cd n8n
+docker compose up -d
+```
+1. Open n8n locally at `http://localhost:5678`.
+2. Import `n8n/manual_triggered_scheduled_Workflow.json` and **Publish / Activate** the workflow so the schedule and startup webhook (`/webhook/sync-news`) are active.
+
+### 2. Database Setup & Web App
 ```bash
 cd src/NewsAggregator.Web
 dotnet ef database update
 dotnet run
 ```
-
-Open Homepage at http://localhost:5223/
-Open API Documentation at http://localhost:5223/scalar/v1#tag/articles/POST/api/articles
-
-### 2. Start n8n
-```bash
-cd n8n
-docker compose up -d
-```
-*(Access n8n locally at `http://localhost:5678` and import `n8n/workflow.json`.)*
+- **Homepage:** `http://127.0.0.1:5223`
+- **API Documentation (Scalar):** `http://127.0.0.1:5223/scalar/v1`

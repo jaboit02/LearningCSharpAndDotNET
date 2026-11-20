@@ -17,6 +17,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register Service to trigger N8n on Startup
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<NewsAggregator.Web.Services.N8nStartupTriggerService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
