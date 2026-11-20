@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using NewsAggregator.Web.Data;
+using NewsAggregator.Web.Endpoints;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Register OpenAPI (generates /openapi/v1.json for API documentation)
+builder.Services.AddOpenApi();
 
 // Register AppDbContext in the Dependency Injection container and configure it to use SQLite.
 // SQLite will look for a file named "news.db" in the root directory of the application
@@ -15,14 +20,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    // Expose OpenAPI JSON and interactive Scalar UI only in development mode
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+else
 {
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 app.UseRouting();
 
@@ -31,5 +41,8 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
+
+// Map all API endpoints defined in Endpoints/ArticleEndpoints.cs
+app.MapArticleEndpoints();
 
 app.Run();
