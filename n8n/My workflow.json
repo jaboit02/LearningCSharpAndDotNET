@@ -1,0 +1,153 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -112
+      ],
+      "id": "1e5e0579-280f-4636-ad6a-6fa16f7ed984",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b98c36d3-eaa9-4c34-8da9-5924a1d55c18",
+              "name": "feedUrl",
+              "value": "https://www.heise.de/rss/heise-atom.xml",
+              "type": "string"
+            },
+            {
+              "id": "1e80bcb4-ec6c-4a1a-954a-8a250086ac43",
+              "name": "sourceName",
+              "value": "Heise Online",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -192,
+        -112
+      ],
+      "id": "0fbcdd8e-efd8-4d1d-87f4-aaa63eec26ed",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.feedUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        -112
+      ],
+      "id": "93273d5b-68c7-4adf-8969-02e67966927f",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "url ",
+              "value": "={{ $json.link }}"
+            },
+            {
+              "name": "summary",
+              "value": "={{ $json.contentSnippet }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $('Edit Fields').item.json.sourceName }}"
+            },
+            {
+              "name": "publishedAt",
+              "value": "={{ $json.isoDate }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        256,
+        -112
+      ],
+      "id": "b5e5410b-e5e4-4e20-94d1-18b6c424e932",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "eb8c12c3-7013-45e8-b6d0-027e008e2d2c",
+  "meta": {
+    "instanceId": "92fd1ca62d161903d063c6f9587e32f262460bf6346a4ea7e8c72a0d8455b912"
+  },
+  "nodeGroups": [],
+  "id": "xXyaDoAWaBHSZh01",
+  "tags": []
+}

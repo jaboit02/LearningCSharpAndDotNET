@@ -51,6 +51,9 @@ dotnet ef database update
 dotnet run
 ```
 
+Open Homepage at http://localhost:5223/
+Open API Documentation at http://localhost:5223/scalar/v1#tag/articles/POST/api/articles
+
 ### 2. Start n8n
 ```bash
 cd n8n

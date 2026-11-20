@@ -1,10 +1,89 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Tech News Aggregator";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Tech News Aggregator</h1>
+            <p class="text-muted mb-0">Automated RSS feed collection powered by n8n &amp; .NET 10</p>
+        </div>
+        <span class="badge bg-primary fs-6">@Model.Articles.Count Article(s)</span>
+    </div>
+
+    <!-- Filter Form (submits as HTTP GET query parameters: /?SearchTerm=...&SelectedSource=...) -->
+    <form method="get" class="card card-body bg-light mb-4 shadow-sm">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label asp-for="SearchTerm" class="form-label fw-semibold">Search Keyword</label>
+                <input asp-for="SearchTerm" class="form-control" placeholder="Search in title or summary..." />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="SelectedSource" class="form-label fw-semibold">Source</label>
+                <select asp-for="SelectedSource" class="form-select">
+                    <option value="">All Sources</option>
+                    @foreach (var source in Model.AvailableSources)
+                    {
+                        <option value="@source">@source</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.SelectedSource))
+                {
+                    <a asp-page="./Index" class="btn btn-outline-secondary">Reset</a>
+                }
+            </div>
+        </div>
+    </form>
+
+    <!-- Article List -->
+    @if (!Model.Articles.Any())
+    {
+        <div class="alert alert-info">
+            No articles found. Trigger your n8n workflow or post test data via <code>/scalar/v1</code>!
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var article in Model.Articles)
+            {
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="mb-1">
+                                        <span class="badge bg-secondary me-2">@article.Source</span>
+                                        <small class="text-muted">
+                                            Published: @article.PublishedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                    <h2 class="h5 card-title mb-2">
+                                        <a href="@article.Url" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                            @article.Title
+                                        </a>
+                                    </h2>
+                                    @if (!string.IsNullOrWhiteSpace(article.Summary))
+                                    {
+                                        <p class="card-text text-muted mb-0">@article.Summary</p>
+                                    }
+                                </div>
+
+                                <!-- Delete Form (triggers OnPostDeleteAsync in Index.cshtml.cs) -->
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@article.Id"
+                                      onsubmit="return confirm('Delete this article?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
