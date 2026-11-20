@@ -55,3 +55,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# SQLite database files (never commit local database data!)
+*.db
+*.db-shm
+*.db-wal
+
+# Local environment secrets
+.env
+
