@@ -64,3 +64,5 @@ nunit-*.xml
 # Local environment secrets
 .env
 
+# Notes
+Roadmap.md
